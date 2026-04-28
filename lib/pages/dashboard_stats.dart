@@ -1,102 +1,99 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shemesh_admin/config/common_consts.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
+import 'package:shemesh_admin/utilities/debug_log.dart';
 
 class DashboardStats {
   final int totalUsers;
   final int activeUsers;
-  final int newUsers30Days;
-  final int testsThisMonth;
+  final int newUsersNDays;
+  final int testsSubmittedRecently;
 
   DashboardStats({
     required this.totalUsers,
     required this.activeUsers,
-    required this.newUsers30Days,
-    required this.testsThisMonth,
+    required this.newUsersNDays,
+    required this.testsSubmittedRecently,
   });
 
   static Future<DashboardStats> loadStats() async {
-    final FirebaseFirestore db = FirebaseService().firestore;
+    final db = FirebaseService().firestore;
 
     final now = DateTime.now();
-    final thirtyDaysAgo = now.subtract(Duration(days: 30));
+    final nDaysAgoForActiveUsers =
+        now.subtract(const Duration(days: CommonConsts.daysForActiveUsers));
+    final nDaysAgoForNewUsers =
+        now.subtract(const Duration(days: CommonConsts.daysForNewUsers));
+
+    final nDaysAgoForRecentTests =
+        now.subtract(const Duration(days: CommonConsts.daysForTestsSubmitted));
 
     final startOfMonth = DateTime(now.year, now.month, 1);
 
-    /// USERS
-    final usersSnap = await db.collection('users').get();
+    final totalUsersFuture = db.collection('users').count().get();
 
-    int totalUsers = usersSnap.docs.length;
-    int activeUsers = 0;
-    int newUsers30Days = 0;
+    debugLog(
+        'Getting active users with last_login >= ${nDaysAgoForActiveUsers.toIso8601String()}');
 
-    print('totalUsers: $totalUsers');
+    final activeUsersFuture = db
+        .collection('users')
+        .where(
+          'last_login',
+          isGreaterThanOrEqualTo: nDaysAgoForActiveUsers.toIso8601String(),
+        )
+        .count()
+        .get();
 
-    for (var doc in usersSnap.docs) {
-      final data = doc.data();
+    debugLog(
+        'Getting newUsersFuture with date_of_registration >= ${nDaysAgoForNewUsers.toIso8601String()}');
 
-      final lastLogin = DateTime.tryParse(data['last_login'] ?? '');
-      final regDate = DateTime.tryParse(data['date_of_registration'] ?? '');
+    final newUsersFuture = db
+        .collection('users')
+        .where(
+          'date_of_registration',
+          isGreaterThanOrEqualTo: nDaysAgoForNewUsers.toIso8601String(),
+        )
+        .count()
+        .get();
 
-      if (lastLogin != null &&
-          lastLogin.isAfter(now.subtract(Duration(days: 30)))) {
-        activeUsers++;
-      }
+    debugLog('Getting collectionGroup for test_data');
 
-      if (regDate != null && regDate.isAfter(thirtyDaysAgo)) {
-        newUsers30Days++;
-      }
-    }
+    final testsFuture = db
+        .collectionGroup('test_data')
+        .where(
+          'quiz_date',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(nDaysAgoForRecentTests),
+        )
+        .count()
+        .get();
 
-    /// TESTS THIS MONTH
-    print('getting test_data collection group...');
-    // final testsSnap = await db
-    //     .collectionGroup('test_data')
-    //     .where('quiz_date',
-    //         isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
-    //     .get();
+    debugLog('After getting collectionGroup');
 
-    print('Returned form getting test_data collection group...');
-    //int testsThisMonth = testsSnap.docs.length;
-    
+    final results = await Future.wait([
+      _safeRun("totalUsers", totalUsersFuture),
+      _safeRun("activeUsers", activeUsersFuture),
+      _safeRun("newUsers", newUsersFuture),
+      _safeRun("tests", testsFuture),
+    ]);
 
-    int testsThisMonth = await _getTestsThisMonth();
-    print('testsThisMonth: $testsThisMonth');
+    debugLog('Using collectionGroup: done');
 
     return DashboardStats(
-      totalUsers: totalUsers,
-      activeUsers: activeUsers,
-      newUsers30Days: newUsers30Days,
-      testsThisMonth: testsThisMonth,
+      totalUsers: results[0].count!,
+      activeUsers: results[1].count!,
+      newUsersNDays: results[2].count!,
+      testsSubmittedRecently: results[3].count!,
     );
   }
 
-  static Future<int> _getTestsThisMonth() async {
-    final db = FirebaseFirestore.instance;
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-
-    int totalTests = 0;
-
-    /// Get all users
-    final usersSnap = await db.collection('users').get();
-
-    for (final userDoc in usersSnap.docs) {
-      final uid = userDoc.id;
-
-      final testsSnap = await db
-          .collection('users')
-          .doc(uid)
-          .collection('test_data')
-          .where(
-            'quiz_date',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth),
-          )
-          .get();
-
-      totalTests += testsSnap.docs.length;
+  static Future _safeRun(String name, Future future) async {
+    try {
+      return await future;
+    } catch (e, stack) {
+      debugLog("FAILED FUTURE: $name");
+      debugLog(e.toString());
+      debugLog(stack.toString());
+      rethrow; // keeps Future.wait failing
     }
-
-    return totalTests;
   }
 }

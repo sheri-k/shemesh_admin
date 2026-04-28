@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shemesh_admin/pages/admin_login_page.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
 import 'pages/dashboard_page.dart';
 import 'firebase_options.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Shemesh Begivon Dashboard',
       debugShowCheckedModeBanner: false,
-      home: DashboardPage(),
+      home: AdminLoginPage(),
+      //home: DashboardPage(),
     );
   }
 }
