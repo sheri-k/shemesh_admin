@@ -3,10 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:shemesh_admin/config/common_consts.dart';
 import 'package:shemesh_admin/pages/dashboard_stats.dart';
-import 'package:shemesh_admin/pages/dashboard_stats.dart';
+import 'package:shemesh_admin/pages/quiz_total_bar_chart.dart';
+import 'package:shemesh_admin/pages/user_growth_chart.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
-//import 'package:intl/intl.dart';
 
 class DashboardPage extends StatelessWidget {
   final FirebaseFirestore db = FirebaseService().firestore;
@@ -81,7 +81,7 @@ class DashboardPage extends StatelessWidget {
                             Colors.blue),
                         statCard(
                             "מבחנים שהוגשו בחודש האחרון",
-                            stats.testsSubmittedRecently.toString(),
+                            stats.quizzesSubmittedRecently.toString(),
                             Colors.green),
                         statCard(
                             "משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)",
@@ -96,85 +96,21 @@ class DashboardPage extends StatelessWidget {
                   },
                 ),
 
-                /// Top Stats
-                // FutureBuilder<QuerySnapshot?>(
-                //   future: getUsers(),
-                //   builder: (context, snapshot) {
-                //     if (snapshot.connectionState == ConnectionState.waiting) {
-                //       print('Waiting for data...');
-                //       return CircularProgressIndicator();
-                //     }
-                //     if (!snapshot.hasData) {
-                //       print('No data');
-                //       return CircularProgressIndicator();
-                //     }
+                const SizedBox(height: 24),
 
-                //     if (snapshot.hasError) {
-                //       return Text("Error: ${snapshot.error}");
-                //     }
-
-                //     int totalUsers = snapshot.data!.docs.length;
-
-                //     return Row(
-                //       children: [
-                //         statCard("Users", totalUsers.toString(), Colors.blue),
-                //       ],
-                //     );
-                //   },
-                // ),
-
-                SizedBox(height: 30),
-
-                /// Users Table
-                // Expanded(
-                //   child: StreamBuilder<QuerySnapshot>(
-                //     stream: db.collection('users').snapshots(),
-                //     builder: (context, snapshot) {
-                //       if (!snapshot.hasData) {
-                //         return Center(child: CircularProgressIndicator());
-                //       }
-
-                //       var users = snapshot.data!.docs;
-
-                //       return SingleChildScrollView(
-                //         child: DataTable(
-                //           columns: [
-                //             DataColumn(label: Text("שם")),
-                //             DataColumn(label: Text("כתובת אימייל")),
-                //             //DataColumn(label: Text("Tests Done")),
-                //             DataColumn(label: Text("כניסה אחרונה")),
-                //           ],
-                //           rows: users.map((user) {
-                //             var data = user.data() as Map<String, dynamic>;
-
-                //             String name = data['display_name'] ?? '';
-                //             String email = data['email_address'] ?? '';
-                //             //int tests = data['testsDone'] ?? 0;
-                //             String ts = data['last_login'];
-                //             //Timestamp? ts = data['last_login'];
-                //             /*
-                //             lastLogin: DateTime.parse(map['last_login']),
-                //             */
-                //             // String lastLogin = ts != null
-                //             //     ? intl.DateFormat('dd/MM/yyyy').format(ts.toDate())
-                //             //     : '';
-
-                //             String lastLogin = formatDate(ts);
-
-                //             return DataRow(
-                //               cells: [
-                //                 DataCell(Text(name)),
-                //                 DataCell(Text(email)),
-                //                 //DataCell(Text(tests.toString())),
-                //                 DataCell(Text(lastLogin)),
-                //               ],
-                //             );
-                //           }).toList(),
-                //         ),
-                //       );
-                //     },
-                //   ),
-                // ),
+                /// SCROLLABLE CHARTS
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: const [
+                        QuizTotalBarChart(),
+                        SizedBox(height: 30),
+                        UserGrowthChart(),
+                        SizedBox(height: 30),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

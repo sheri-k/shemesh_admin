@@ -7,13 +7,13 @@ class DashboardStats {
   final int totalUsers;
   final int activeUsers;
   final int newUsersNDays;
-  final int testsSubmittedRecently;
+  final int quizzesSubmittedRecently;
 
   DashboardStats({
     required this.totalUsers,
     required this.activeUsers,
     required this.newUsersNDays,
-    required this.testsSubmittedRecently,
+    required this.quizzesSubmittedRecently,
   });
 
   static Future<DashboardStats> loadStats() async {
@@ -58,7 +58,7 @@ class DashboardStats {
 
     debugLog('Getting collectionGroup for test_data');
 
-    final testsFuture = db
+    final quizzesFuture = db
         .collectionGroup('test_data')
         .where(
           'quiz_date',
@@ -73,7 +73,7 @@ class DashboardStats {
       _safeRun("totalUsers", totalUsersFuture),
       _safeRun("activeUsers", activeUsersFuture),
       _safeRun("newUsers", newUsersFuture),
-      _safeRun("tests", testsFuture),
+      _safeRun("tests", quizzesFuture),
     ]);
 
     debugLog('Using collectionGroup: done');
@@ -82,7 +82,7 @@ class DashboardStats {
       totalUsers: results[0].count!,
       activeUsers: results[1].count!,
       newUsersNDays: results[2].count!,
-      testsSubmittedRecently: results[3].count!,
+      quizzesSubmittedRecently: results[3].count!,
     );
   }
 
