@@ -15,6 +15,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   static String tag = 'AdminLoginPage';
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   bool _loading = false;
   String _error = '';
@@ -86,12 +87,33 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // TextField(
+                    //   controller: _passwordController,
+                    //   obscureText: true,
+                    //   decoration: const InputDecoration(
+                    //     labelText: 'סיסמה',
+                    //     border: OutlineInputBorder(),
+                    //   ),
+                    // ),
+
                     TextField(
                       controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
                         labelText: 'סיסמה',
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
