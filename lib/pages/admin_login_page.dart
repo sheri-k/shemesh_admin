@@ -87,15 +87,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // TextField(
-                    //   controller: _passwordController,
-                    //   obscureText: true,
-                    //   decoration: const InputDecoration(
-                    //     labelText: 'סיסמה',
-                    //     border: OutlineInputBorder(),
-                    //   ),
-                    // ),
-
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
