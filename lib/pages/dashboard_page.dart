@@ -45,7 +45,7 @@ class DashboardPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             ),
-            backgroundColor: Colors.blue),
+            backgroundColor: CommonConsts.appBarColor),
         body: Align(
           alignment: Alignment.topRight,
           child: Padding(
