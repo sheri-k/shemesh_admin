@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "shemesh-test"
+  },
+  "targets": {
+    "shemesh-test": {
+      "hosting": {
+        "admin": [
+          "shemesh-admin"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
