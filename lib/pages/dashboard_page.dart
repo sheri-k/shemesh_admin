@@ -28,6 +28,27 @@ class DashboardPage extends StatelessWidget {
     }
   }
 
+  Future<int> getTodaysTestCount() async {
+    final now = DateTime.now();
+
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final startOfNextDay = startOfDay.add(const Duration(days: 1));
+
+    final snapshot = await FirebaseFirestore.instance
+        .collectionGroup('tractate-pages')
+        .where(
+          'quiz_date',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
+        )
+        .where(
+          'quiz_date',
+          isLessThan: Timestamp.fromDate(startOfNextDay),
+        )
+        .get();
+
+    return snapshot.docs.length;
+  }
+
   String formatDate(String isoString) {
     DateTime dateTime = DateTime.parse(isoString);
     return intl.DateFormat('dd-MM-yyyy').format(dateTime);
@@ -79,8 +100,10 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         statCard("סה'כ משתמשים", stats.totalUsers.toString(),
                             Colors.blue),
+                        statCard("שאלונים שהוגשו היום", stats.quizzesToday.toString(),
+                            Colors.brown),
                         statCard(
-                            "מבחנים שהוגשו בחודש האחרון",
+                            "שאלונים שהוגשו בחודש האחרון",
                             stats.quizzesSubmittedRecently.toString(),
                             Colors.green),
                         statCard(
@@ -129,7 +152,7 @@ class DashboardPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(fontSize: 16, color: Colors.grey)),
+            Text(title, style: TextStyle(fontSize: 16, color: CommonConsts.primaryTextColor)),
             Spacer(),
             Text(
               value,
