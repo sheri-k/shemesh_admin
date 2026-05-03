@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shemesh_admin/config/common_consts.dart';
+import 'package:shemesh_admin/pages/daf_voice_page.dart';
 import 'package:shemesh_admin/pages/dashboard_page.dart';
+import 'package:shemesh_admin/pages/voice_input_page.dart';
+import 'package:shemesh_admin/pages/voice_question_page.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
 class AdminLoginPage extends StatefulWidget {
@@ -27,15 +30,22 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     });
 
     try {
+      // await FirebaseAuth.instance.signInWithEmailAndPassword(
+      //   email: _emailController.text.trim(),
+      //   password: _passwordController.text.trim(),
+      // );
+
+      // Temporary
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: 'admin@shemeshbegivon.com',
+        password: 'totafjlhruakhoG7?',
       );
 
       // SUCCESS: go to dashboard
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => DashboardPage()),
+        //MaterialPageRoute(builder: (_) => DashboardPage()),
+        MaterialPageRoute(builder: (_) => DafVoicePage()),
       );
     } on FirebaseAuthException catch (e) {
       debugLog(name: tag, 'FirebaseAuthException: ${e.code} - ${e.message}');
