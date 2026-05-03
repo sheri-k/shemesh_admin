@@ -81,6 +81,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     const SizedBox(height: 24),
                     TextField(
                       controller: _emailController,
+                      textDirection: TextDirection.ltr,
                       decoration: const InputDecoration(
                         labelText: 'אימייל',
                         border: OutlineInputBorder(),
@@ -90,6 +91,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      textDirection: TextDirection.ltr,
                       decoration: InputDecoration(
                         labelText: 'סיסמה',
                         border: const OutlineInputBorder(),
