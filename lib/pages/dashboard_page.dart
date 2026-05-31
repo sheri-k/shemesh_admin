@@ -4,59 +4,41 @@ import 'package:intl/intl.dart' as intl;
 import 'package:shemesh_admin/config/common_consts.dart';
 import 'package:shemesh_admin/pages/dashboard_stats.dart';
 import 'package:shemesh_admin/pages/quiz_total_bar_chart.dart';
+import 'package:shemesh_admin/pages/scan_collection.dart';
 import 'package:shemesh_admin/pages/user_growth_chart.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
-class DashboardPage extends StatelessWidget {
-  final FirebaseFirestore db = FirebaseService().firestore;
-
+class DashboardPage extends StatefulWidget {
   DashboardPage({super.key});
 
-  Future<QuerySnapshot?> getUsers() async {
-    try {
-      // Reference to the Firestore document
-      //DocumentReference docRef =
-      //    FirebaseFirestore.instance.collection(collectionPath).doc(documentId);
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
 
-      final querySnapshot = await db.collection('users').get();
+class _DashboardPageState extends State<DashboardPage> {
+  final FirebaseFirestore _db = FirebaseService().firestore;
+  late Future<DashboardStats> _futureStats; // Declare _futureStats
 
-      return querySnapshot;
-    } catch (e) {
-      debugLog('[getUsers] Error getting users collection: $e');
-      return null;
-    }
+  static const Color actionButtonColor = Color(0xFFB9E192);
+  static const Color secondaryActionButtonColor = Color(0xFFCBD3E7);
+  static const Color primaryTextColor = Color(0xFF263554);
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _futureStats with the data-fetching function
+    _futureStats = DashboardStats.loadStats();
   }
 
-  Future<int> getTodaysTestCount() async {
-    final now = DateTime.now();
-
-    final startOfDay = DateTime(now.year, now.month, now.day);
-    final startOfNextDay = startOfDay.add(const Duration(days: 1));
-
-    final snapshot = await FirebaseFirestore.instance
-        .collectionGroup('tractate-pages')
-        .where(
-          'quiz_date',
-          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
-        )
-        .where(
-          'quiz_date',
-          isLessThan: Timestamp.fromDate(startOfNextDay),
-        )
-        .get();
-
-    return snapshot.docs.length;
-  }
-
-  String formatDate(String isoString) {
-    DateTime dateTime = DateTime.parse(isoString);
-    return intl.DateFormat('dd-MM-yyyy').format(dateTime);
+  void scanQuestions() async {
+    await ScanCollection().scan();
   }
 
   @override
   Widget build(BuildContext context) {
     debugLog('DashboardPage: building...');
+    //scanQuestions(); // Run the scan when the dashboard builds
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -74,7 +56,7 @@ class DashboardPage extends StatelessWidget {
             child: Column(
               children: [
                 FutureBuilder<DashboardStats>(
-                  future: DashboardStats.loadStats(),
+                  future: _futureStats, //DashboardStats.loadStats(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       debugLog('LoadStats: Waiting for data...');
@@ -92,28 +74,73 @@ class DashboardPage extends StatelessWidget {
                     debugLog('Got data!');
                     final stats = snapshot.data!;
 
-                    return Wrap(
-                      runAlignment: WrapAlignment.end,
-                      alignment: WrapAlignment.end,
-                      spacing: 16,
-                      runSpacing: 16,
+                    return Column(
                       children: [
-                        statCard("סה'כ משתמשים", stats.totalUsers.toString(),
-                            Colors.blue),
-                        statCard("שאלונים שהוגשו היום", stats.quizzesToday.toString(),
-                            Colors.brown),
-                        statCard(
-                            "שאלונים שהוגשו בחודש האחרון",
-                            stats.quizzesSubmittedRecently.toString(),
-                            Colors.green),
-                        statCard(
-                            "משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)",
-                            stats.activeUsers.toString(),
-                            Colors.orange),
-                        statCard(
-                            "משתמשים חדשים (${CommonConsts.daysForNewUsers} ימים אחרונים)",
-                            stats.newUsersNDays.toString(),
-                            Colors.purple),
+                        // Refresh button
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              // Trigger a refresh of the data
+                              _futureStats = DashboardStats
+                                  .loadStats(); //  fetchStatsFromDatabase();
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                actionButtonColor, // very light blue
+                            foregroundColor: primaryTextColor,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                          ),
+                          child: const Text(
+                            'רענן נתונים',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: primaryTextColor,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+                        Wrap(
+                          runAlignment: WrapAlignment.end,
+                          alignment: WrapAlignment.end,
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: [
+                            statCard("סה'כ משתמשים",
+                                stats.totalUsers.toString(), Colors.blue),
+                            statCard("שאלונים שהוגשו היום",
+                                stats.quizzesToday.toString(), Colors.brown),
+                            statCard(
+                                "שאלונים שהוגשו בחודש האחרון",
+                                stats.quizzesSubmittedRecently.toString(),
+                                Colors.green),
+                            statCard(
+                                "משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)",
+                                stats.activeUsers.toString(),
+                                Colors.orange),
+                            statCard(
+                                "משתמשים חדשים (${CommonConsts.daysForNewUsers} ימים אחרונים)",
+                                stats.newUsersNDays.toString(),
+                                Colors.purple),
+                            statCard(
+                                "סך השאלונים שהוגשו על ידי אורחים",
+                                stats.totalGuestQuizzes.toString(),
+                                Colors.deepPurple),
+                            statCard(
+                                "סך כניסות כאורח",
+                                stats.totalGuestLogins.toString(),
+                                Colors.deepPurple),
+                          ],
+                        ),
                       ],
                     );
                   },
@@ -152,7 +179,9 @@ class DashboardPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(fontSize: 16, color: CommonConsts.primaryTextColor)),
+            Text(title,
+                style: TextStyle(
+                    fontSize: 16, color: CommonConsts.primaryTextColor)),
             Spacer(),
             Text(
               value,
