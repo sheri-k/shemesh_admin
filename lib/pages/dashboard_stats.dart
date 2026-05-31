@@ -9,6 +9,8 @@ class DashboardStats {
   final int newUsersNDays;
   final int quizzesSubmittedRecently;
   final int quizzesToday;
+  final int totalGuestQuizzes;
+  final int totalGuestLogins;
 
   DashboardStats({
     required this.totalUsers,
@@ -16,7 +18,11 @@ class DashboardStats {
     required this.newUsersNDays,
     required this.quizzesSubmittedRecently,
     required this.quizzesToday,
+    required this.totalGuestQuizzes,
+    required this.totalGuestLogins,
   });
+
+  static String tag = "DashboardStats";
 
   static Future<DashboardStats> loadStats() async {
     final db = FirebaseService().firestore;
@@ -48,7 +54,6 @@ class DashboardStats {
 
     debugLog(
         'Getting newUsersFuture with date_of_registration >= ${nDaysAgoForNewUsers.toIso8601String()}');
-
     final newUsersFuture = db
         .collection('users')
         .where(
@@ -59,7 +64,6 @@ class DashboardStats {
         .get();
 
     debugLog('Getting collectionGroup for test_data');
-
     final quizzesFuture = db
         .collectionGroup('test_data')
         .where(
@@ -69,8 +73,18 @@ class DashboardStats {
         .count()
         .get();
 
+    final guestQuizzesSubmittedFuture =
+        db.collection('analytics').doc('guest_stats').get();
+
+    final guestLoginsFuture =
+        db.collection('analytics').doc('guest_stats').get();
+
     final startOfToday = DateTime(now.year, now.month, now.day);
     final startOfTomorrow = startOfToday.add(const Duration(days: 1));
+    debugLog(
+        name: tag,
+        'Getting quizzes submitted today with quiz_date >= ${startOfToday.toIso8601String()} and < ${startOfTomorrow.toIso8601String()}');
+
     final quizzesTodayFuture = db
         .collectionGroup('test_data')
         .where(
@@ -92,6 +106,8 @@ class DashboardStats {
       _safeRun("newUsers", newUsersFuture),
       _safeRun("tests", quizzesFuture),
       _safeRun("quizzesToday", quizzesTodayFuture),
+      _safeRun("totalGuestQuizzes", guestQuizzesSubmittedFuture),
+      _safeRun("totalGuestLogins", guestLoginsFuture),
     ]);
 
     debugLog('Using collectionGroup: done');
@@ -102,6 +118,12 @@ class DashboardStats {
       newUsersNDays: results[2].count!,
       quizzesSubmittedRecently: results[3].count!,
       quizzesToday: results[4].count!,
+      totalGuestQuizzes:
+          (results[5].data() as Map<String, dynamic>?)?['totalGuestQuizzes'] ??
+              0,
+              totalGuestLogins:
+          (results[6].data() as Map<String, dynamic>?)?['totalGuestLogins'] ??
+              0,
     );
   }
 
