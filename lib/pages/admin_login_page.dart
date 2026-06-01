@@ -82,6 +82,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     TextField(
                       controller: _emailController,
                       textDirection: TextDirection.ltr,
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                       decoration: const InputDecoration(
                         labelText: 'אימייל',
                         border: OutlineInputBorder(),
@@ -92,6 +94,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       textDirection: TextDirection.ltr,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _login(),
                       decoration: InputDecoration(
                         labelText: 'סיסמה',
                         border: const OutlineInputBorder(),
