@@ -34,7 +34,7 @@ Future<void> scan() async {
         if (entry.value > 10) {
           debugLog(name: tag,
             'Questions collection "${entry.key}" '
-            'contains ${entry.value} documents.',            
+            'contains ${entry.value} documents.',
           );
         }
       }
@@ -100,5 +100,5 @@ Future<void> scan() async {
         stackTrace: st,
       );
     }
-  } 
+  }
 } */

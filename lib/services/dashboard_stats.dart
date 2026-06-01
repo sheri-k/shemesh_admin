@@ -36,8 +36,6 @@ class DashboardStats {
     final nDaysAgoForRecentTests =
         now.subtract(const Duration(days: CommonConsts.daysForTestsSubmitted));
 
-    final startOfMonth = DateTime(now.year, now.month, 1);
-
     final totalUsersFuture = db.collection('users').count().get();
 
     debugLog(

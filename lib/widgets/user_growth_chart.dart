@@ -130,7 +130,6 @@ class _UserGrowthChartState extends State<UserGrowthChart> {
                 child: LineChart(
                   LineChartData(
                     maxY: ((maxValue / 5).ceil() * 5).toDouble(),
-                    //maxY: maxValue.toDouble() + 5,
                     gridData: FlGridData(show: true),
                     borderData: FlBorderData(show: true),
                     titlesData: FlTitlesData(

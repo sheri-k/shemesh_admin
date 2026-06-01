@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:shemesh_admin/config/common_consts.dart';
-import 'package:shemesh_admin/pages/dashboard_stats.dart';
-import 'package:shemesh_admin/pages/quiz_total_bar_chart.dart';
-import 'package:shemesh_admin/pages/scan_collection.dart';
-import 'package:shemesh_admin/pages/user_growth_chart.dart';
+import 'package:shemesh_admin/services/dashboard_stats.dart';
+import 'package:shemesh_admin/utilities/scan_collection.dart';
+import 'package:shemesh_admin/widgets/quiz_total_bar_chart.dart';
+import 'package:shemesh_admin/widgets/user_growth_chart.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
