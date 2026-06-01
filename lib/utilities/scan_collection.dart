@@ -7,8 +7,6 @@ import 'package:shemesh_admin/utilities/debug_log.dart';
 class ScanCollection {
   static const String tag = 'ScanCollection';
 
-    //final FirebaseFirestore db = FirebaseService().firestore;
-
   final FirebaseFirestore firestore;
 
   ScanCollection({FirebaseFirestore? firestoreInstance})

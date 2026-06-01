@@ -1,158 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:shemesh_admin/config/common_consts.dart';
 import 'package:shemesh_admin/services/dashboard_stats.dart';
-import 'package:shemesh_admin/utilities/scan_collection.dart';
 import 'package:shemesh_admin/widgets/quiz_total_bar_chart.dart';
+import 'package:shemesh_admin/widgets/stat_card.dart';
 import 'package:shemesh_admin/widgets/user_growth_chart.dart';
-import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
 class DashboardPage extends StatefulWidget {
-  DashboardPage({super.key});
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final FirebaseFirestore _db = FirebaseService().firestore;
-  late Future<DashboardStats> _futureStats; // Declare _futureStats
-
-  static const Color actionButtonColor = Color(0xFFB9E192);
-  static const Color secondaryActionButtonColor = Color(0xFFCBD3E7);
-  static const Color primaryTextColor = Color(0xFF263554);
+  late Future<DashboardStats> _futureStats;
 
   @override
   void initState() {
     super.initState();
-    // Initialize _futureStats with the data-fetching function
     _futureStats = DashboardStats.loadStats();
   }
 
-  void scanQuestions() async {
-    await ScanCollection().scan();
+  void _refreshStats() {
+    setState(() {
+      _futureStats = DashboardStats.loadStats();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     debugLog('DashboardPage: building...');
-    //scanQuestions(); // Run the scan when the dashboard builds
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-            title: Center(
-              child: Text("שמש בגבעון",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          title: const Center(
+            child: Text(
+              'שמש בגבעון',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            backgroundColor: CommonConsts.appBarColor),
+          ),
+          backgroundColor: CommonConsts.appBarColor,
+        ),
         body: Align(
           alignment: Alignment.topRight,
           child: Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               children: [
                 FutureBuilder<DashboardStats>(
-                  future: _futureStats, //DashboardStats.loadStats(),
+                  future: _futureStats,
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      debugLog('LoadStats: Waiting for data...');
-                      return CircularProgressIndicator();
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
                     }
                     if (!snapshot.hasData) {
-                      debugLog('LoadStats: No data');
-                      return CircularProgressIndicator();
+                      debugLog('LoadStats: waiting for data...');
+                      return const CircularProgressIndicator();
                     }
-
-                    if (snapshot.hasError) {
-                      return Text("Error: ${snapshot.error}");
-                    }
-
-                    debugLog('Got data!');
-                    final stats = snapshot.data!;
-
-                    return Column(
-                      children: [
-                        // Refresh button
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              // Trigger a refresh of the data
-                              _futureStats = DashboardStats
-                                  .loadStats(); //  fetchStatsFromDatabase();
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                actionButtonColor, // very light blue
-                            foregroundColor: primaryTextColor,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                          ),
-                          child: const Text(
-                            'רענן נתונים',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: primaryTextColor,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-                        Wrap(
-                          runAlignment: WrapAlignment.end,
-                          alignment: WrapAlignment.end,
-                          spacing: 16,
-                          runSpacing: 16,
-                          children: [
-                            statCard("סה'כ משתמשים",
-                                stats.totalUsers.toString(), Colors.blue),
-                            statCard("שאלונים שהוגשו היום",
-                                stats.quizzesToday.toString(), Colors.brown),
-                            statCard(
-                                "שאלונים שהוגשו בחודש האחרון",
-                                stats.quizzesSubmittedRecently.toString(),
-                                Colors.green),
-                            statCard(
-                                "משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)",
-                                stats.activeUsers.toString(),
-                                Colors.orange),
-                            statCard(
-                                "משתמשים חדשים (${CommonConsts.daysForNewUsers} ימים אחרונים)",
-                                stats.newUsersNDays.toString(),
-                                Colors.purple),
-                            statCard(
-                                "סך השאלונים שהוגשו על ידי אורחים",
-                                stats.totalGuestQuizzes.toString(),
-                                Colors.deepPurple),
-                            statCard(
-                                "סך כניסות כאורח",
-                                stats.totalGuestLogins.toString(),
-                                Colors.deepPurple),
-                          ],
-                        ),
-                      ],
-                    );
+                    return _buildStatsSection(snapshot.data!);
                   },
                 ),
-
                 const SizedBox(height: 24),
-
-                /// SCROLLABLE CHARTS
-                Expanded(
+                const Expanded(
                   child: SingleChildScrollView(
                     child: Column(
-                      children: const [
+                      children: [
                         QuizTotalBarChart(),
                         SizedBox(height: 30),
                         UserGrowthChart(),
@@ -169,31 +84,52 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget statCard(String title, String value, Color color) {
-    return Card(
-      elevation: 4,
-      child: Container(
-        width: 220,
-        height: 150,
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title,
-                style: TextStyle(
-                    fontSize: 16, color: CommonConsts.primaryTextColor)),
-            Spacer(),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ],
+  Widget _buildStatsSection(DashboardStats stats) {
+    return Column(
+      children: [
+        _buildRefreshButton(),
+        const SizedBox(height: 16),
+        _buildStatCards(stats),
+      ],
+    );
+  }
+
+  Widget _buildRefreshButton() {
+    return ElevatedButton(
+      onPressed: _refreshStats,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: CommonConsts.actionButtonColor,
+        foregroundColor: CommonConsts.primaryTextColor,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+      child: const Text(
+        'רענן נתונים',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: CommonConsts.primaryTextColor,
         ),
       ),
+    );
+  }
+
+  Widget _buildStatCards(DashboardStats stats) {
+    return Wrap(
+      runAlignment: WrapAlignment.end,
+      alignment: WrapAlignment.end,
+      spacing: 16,
+      runSpacing: 16,
+      children: [
+        StatCard(title: "סה'כ משתמשים", value: stats.totalUsers.toString(), color: Colors.blue),
+        StatCard(title: 'שאלונים שהוגשו היום', value: stats.quizzesToday.toString(), color: Colors.brown),
+        StatCard(title: 'שאלונים שהוגשו בחודש האחרון', value: stats.quizzesSubmittedRecently.toString(), color: Colors.green),
+        StatCard(title: 'משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)', value: stats.activeUsers.toString(), color: Colors.orange),
+        StatCard(title: 'משתמשים חדשים (${CommonConsts.daysForNewUsers} ימים אחרונים)', value: stats.newUsersNDays.toString(), color: Colors.purple),
+        StatCard(title: 'סך השאלונים שהוגשו על ידי אורחים', value: stats.totalGuestQuizzes.toString(), color: Colors.deepPurple),
+        StatCard(title: 'סך כניסות כאורח', value: stats.totalGuestLogins.toString(), color: Colors.deepPurple),
+      ],
     );
   }
 }
