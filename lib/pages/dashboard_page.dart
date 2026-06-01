@@ -37,7 +37,7 @@ class _DashboardPageState extends State<DashboardPage> {
         appBar: AppBar(
           title: const Center(
             child: Text(
-              'שמש בגבעון',
+              CommonConsts.appName,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
