@@ -40,8 +40,7 @@ class FirebaseService {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    const databaseId = 'production';
-    //const databaseId = '(default)';
+    const databaseId = String.fromEnvironment('DATABASE_ID', defaultValue: '(default)');
     _firestore = FirebaseFirestore.instanceFor(
       app: app,
       databaseId: databaseId,
