@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shemesh_admin/config/common_consts.dart';
 import 'package:shemesh_admin/pages/dashboard_page.dart';
@@ -32,7 +33,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      // SUCCESS: go to dashboard
+      // SUCCESS: signal the browser to offer saving credentials, then navigate
+      TextInput.finishAutofillContext(shouldSave: true);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => DashboardPage()),
@@ -79,34 +81,46 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    TextField(
-                      controller: _emailController,
-                      textDirection: TextDirection.ltr,
-                      decoration: const InputDecoration(
-                        labelText: 'אימייל',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textDirection: TextDirection.ltr,
-                      decoration: InputDecoration(
-                        labelText: 'סיסמה',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                    AutofillGroup(
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _emailController,
+                            textDirection: TextDirection.ltr,
+                            textInputAction: TextInputAction.next,
+                            autofillHints: const [AutofillHints.email],
+                            onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                            decoration: const InputDecoration(
+                              labelText: 'אימייל',
+                              border: OutlineInputBorder(),
+                            ),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            textDirection: TextDirection.ltr,
+                            textInputAction: TextInputAction.done,
+                            autofillHints: const [AutofillHints.password],
+                            onSubmitted: (_) => _login(),
+                            decoration: InputDecoration(
+                              labelText: 'סיסמה',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
