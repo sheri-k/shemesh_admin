@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shemesh_admin/config/common_consts.dart';
 
-const double _cardWidth = 220;
-const double _cardHeight = 150;
-const double _cardPadding = 20;
-const double _titleFontSize = 16;
-const double _valueFontSize = 32;
+const double _cardPadding = 12;
+const double _titleFontSize = 13;
+const double _valueFontSize = 28;
 
 class StatCard extends StatelessWidget {
   final String title;
@@ -23,18 +21,25 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      child: Container(
-        width: _cardWidth,
-        height: _cardHeight,
+      child: Padding(
         padding: const EdgeInsets.all(_cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontSize: _titleFontSize, color: CommonConsts.primaryTextColor)),
-            const Spacer(),
             Text(
-              value,
-              style: TextStyle(fontSize: _valueFontSize, fontWeight: FontWeight.bold, color: color),
+              title,
+              style: const TextStyle(fontSize: _titleFontSize, color: CommonConsts.primaryTextColor),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                style: TextStyle(fontSize: _valueFontSize, fontWeight: FontWeight.bold, color: color),
+              ),
             ),
           ],
         ),

@@ -44,40 +44,30 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           backgroundColor: CommonConsts.appBarColor,
         ),
-        body: Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                FutureBuilder<DashboardStats>(
-                  future: _futureStats,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData) {
-                      debugLog('LoadStats: waiting for data...');
-                      return const CircularProgressIndicator();
-                    }
-                    return _buildStatsSection(snapshot.data!);
-                  },
-                ),
-                const SizedBox(height: 24),
-                const Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        QuizTotalBarChart(),
-                        SizedBox(height: 30),
-                        UserGrowthChart(),
-                        SizedBox(height: 30),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              FutureBuilder<DashboardStats>(
+                future: _futureStats,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData) {
+                    debugLog('LoadStats: waiting for data...');
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return _buildStatsSection(snapshot.data!);
+                },
+              ),
+              const SizedBox(height: 24),
+              const QuizTotalBarChart(),
+              const SizedBox(height: 30),
+              const UserGrowthChart(),
+              const SizedBox(height: 30),
+            ],
           ),
         ),
       ),
@@ -95,41 +85,60 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildRefreshButton() {
-    return ElevatedButton(
-      onPressed: _refreshStats,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: CommonConsts.actionButtonColor,
-        foregroundColor: CommonConsts.primaryTextColor,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      ),
-      child: const Text(
-        'רענן נתונים',
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
-          color: CommonConsts.primaryTextColor,
+    return Align(
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: _refreshStats,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: CommonConsts.actionButtonColor,
+          foregroundColor: CommonConsts.primaryTextColor,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        ),
+        child: const Text(
+          'רענן נתונים',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: CommonConsts.primaryTextColor,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildStatCards(DashboardStats stats) {
-    return Wrap(
-      runAlignment: WrapAlignment.end,
-      alignment: WrapAlignment.end,
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        StatCard(title: "סה'כ משתמשים", value: stats.totalUsers.toString(), color: Colors.blue),
-        StatCard(title: 'שאלונים שהוגשו היום', value: stats.quizzesToday.toString(), color: Colors.brown),
-        StatCard(title: 'שאלונים שהוגשו בחודש האחרון', value: stats.quizzesSubmittedRecently.toString(), color: Colors.green),
-        StatCard(title: 'משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)', value: stats.activeUsers.toString(), color: Colors.orange),
-        StatCard(title: 'משתמשים חדשים (${CommonConsts.daysForNewUsers} ימים אחרונים)', value: stats.newUsersNDays.toString(), color: Colors.purple),
-        StatCard(title: 'סך השאלונים שהוגשו על ידי אורחים', value: stats.totalGuestQuizzes.toString(), color: Colors.deepPurple),
-        StatCard(title: 'סך כניסות כאורח', value: stats.totalGuestLogins.toString(), color: Colors.deepPurple),
-      ],
+    final cards = [
+      StatCard(title: "סה'כ משתמשים", value: stats.totalUsers.toString(), color: Colors.blue),
+      StatCard(title: 'שאלונים שהוגשו היום', value: stats.quizzesToday.toString(), color: Colors.brown),
+      StatCard(title: 'שאלונים שהוגשו בחודש האחרון', value: stats.quizzesSubmittedRecently.toString(), color: Colors.green),
+      StatCard(title: 'משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)', value: stats.activeUsers.toString(), color: Colors.orange),
+      StatCard(title: 'משתמשים חדשים (${CommonConsts.daysForNewUsers} ימים אחרונים)', value: stats.newUsersNDays.toString(), color: Colors.purple),
+      StatCard(title: 'סך השאלונים שהוגשו על ידי אורחים', value: stats.totalGuestQuizzes.toString(), color: Colors.deepPurple),
+      StatCard(title: 'סך כניסות כאורח', value: stats.totalGuestLogins.toString(), color: Colors.deepPurple),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth < 480
+            ? 2
+            : constraints.maxWidth < 720
+                ? 3
+                : constraints.maxWidth < 1000
+                    ? 4
+                    : 5;
+
+        return GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: columns,
+          childAspectRatio: 1.6,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          children: cards,
+        );
+      },
     );
   }
 }
