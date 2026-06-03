@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shemesh_admin/firebase_options.dart';
-import 'package:shemesh_admin/utilities/debug_log.dart';
 
 class FirebaseService {
   static const String tag = "FirebaseService";
