@@ -7,6 +7,9 @@ import 'package:shemesh_admin/widgets/stat_card.dart';
 import 'package:shemesh_admin/widgets/user_growth_chart.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
+const double _maxCardWidth = 240;   // hard cap on each card's width
+const double _maxGridWidth = 1500;  // group stays centered beyond this
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -15,6 +18,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  static String tag = 'DashboardPage';
   late Future<DashboardStats> _futureStats;
 
   @override
@@ -94,7 +98,8 @@ class _DashboardPageState extends State<DashboardPage> {
           backgroundColor: CommonConsts.actionButtonColor,
           foregroundColor: CommonConsts.primaryTextColor,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         ),
         child: const Text(
@@ -111,35 +116,49 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildStatCards(DashboardStats stats) {
     final cards = [
-      StatCard(title: DashboardLabels.totalUsers, value: stats.totalUsers.toString(), color: Colors.blue),
-      StatCard(title: DashboardLabels.quizzesToday, value: stats.quizzesToday.toString(), color: Colors.brown),
-      StatCard(title: DashboardLabels.quizzesThisMonth, value: stats.quizzesSubmittedRecently.toString(), color: Colors.green),
-      StatCard(title: DashboardLabels.activeUsers, value: stats.activeUsers.toString(), color: Colors.orange),
-      StatCard(title: DashboardLabels.newUsers, value: stats.newUsersNDays.toString(), color: Colors.purple),
-      StatCard(title: DashboardLabels.totalGuestQuizzes, value: stats.totalGuestQuizzes.toString(), color: Colors.deepPurple),
-      StatCard(title: DashboardLabels.totalGuestLogins, value: stats.totalGuestLogins.toString(), color: Colors.deepPurple),
+      StatCard(
+          title: DashboardLabels.totalUsers,
+          value: stats.totalUsers.toString(),
+          color: Colors.blue),
+      StatCard(
+          title: DashboardLabels.quizzesToday,
+          value: stats.quizzesToday.toString(),
+          color: Colors.brown),
+      StatCard(
+          title: DashboardLabels.quizzesThisMonth,
+          value: stats.quizzesSubmittedRecently.toString(),
+          color: Colors.green),
+      StatCard(
+          title: DashboardLabels.activeUsers,
+          value: stats.activeUsers.toString(),
+          color: Colors.orange),
+      StatCard(
+          title: DashboardLabels.newUsers,
+          value: stats.newUsersNDays.toString(),
+          color: Colors.purple),
+      StatCard(
+          title: DashboardLabels.totalGuestQuizzes,
+          value: stats.totalGuestQuizzes.toString(),
+          color: Colors.deepPurple),
+      StatCard(
+          title: DashboardLabels.totalGuestLogins,
+          value: stats.totalGuestLogins.toString(),
+          color: Colors.deepPurple),
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth < 480
-            ? 5
-            : constraints.maxWidth < 720
-                ? 6
-                : constraints.maxWidth < 1000
-                    ? 7
-                    : 7;
-
-        return GridView.count(
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: _maxGridWidth),
+        child: GridView.extent(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: columns,
+          maxCrossAxisExtent: _maxCardWidth,
           childAspectRatio: 1.5,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           children: cards,
-        );
-      },
+        ),
+      ),
     );
   }
 }
