@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shemesh_admin/config/common_consts.dart';
 
 const double _cardPadding = 12;
-const double _titleFontSize = 13;
-const double _valueFontSize = 28;
 
 class StatCard extends StatelessWidget {
   final String title;
@@ -21,28 +19,36 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(_cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: _titleFontSize, color: CommonConsts.primaryTextColor),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final titleFontSize = (constraints.maxWidth * 0.09).clamp(11.0, 17.0);
+          final valueFontSize = (constraints.maxWidth * 0.2).clamp(22.0, 36.0);
+
+          return Padding(
+            padding: const EdgeInsets.all(_cardPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontSize: titleFontSize, color: CommonConsts.primaryTextColor),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      value,
+                      style: TextStyle(fontSize: valueFontSize, fontWeight: FontWeight.bold, color: color),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const Spacer(),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                value,
-                style: TextStyle(fontSize: _valueFontSize, fontWeight: FontWeight.bold, color: color),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
