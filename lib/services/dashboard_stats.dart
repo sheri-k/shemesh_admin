@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shemesh_admin/config/common_consts.dart';
+import 'package:shemesh_admin/config/stat_consts.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
@@ -29,12 +29,12 @@ class DashboardStats {
 
     final now = DateTime.now();
     final nDaysAgoForActiveUsers =
-        now.subtract(const Duration(days: CommonConsts.daysForActiveUsers));
+        now.subtract(const Duration(days: StatConsts.daysForActiveUsers));
     final nDaysAgoForNewUsers =
-        now.subtract(const Duration(days: CommonConsts.daysForNewUsers));
+        now.subtract(const Duration(days: StatConsts.daysForNewUsers));
 
     final nDaysAgoForRecentTests =
-        now.subtract(const Duration(days: CommonConsts.daysForTestsSubmitted));
+        now.subtract(const Duration(days: StatConsts.daysForTestsSubmitted));
 
     final totalUsersFuture = db.collection('users').count().get();
 

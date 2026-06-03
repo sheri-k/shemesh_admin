@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shemesh_admin/config/common_consts.dart';
+import 'package:shemesh_admin/config/dashboard_labels.dart';
 import 'package:shemesh_admin/services/dashboard_stats.dart';
 import 'package:shemesh_admin/widgets/quiz_total_bar_chart.dart';
 import 'package:shemesh_admin/widgets/stat_card.dart';
@@ -110,30 +111,30 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildStatCards(DashboardStats stats) {
     final cards = [
-      StatCard(title: "סה'כ משתמשים", value: stats.totalUsers.toString(), color: Colors.blue),
-      StatCard(title: 'שאלונים שהוגשו היום', value: stats.quizzesToday.toString(), color: Colors.brown),
-      StatCard(title: 'שאלונים שהוגשו בחודש האחרון', value: stats.quizzesSubmittedRecently.toString(), color: Colors.green),
-      StatCard(title: 'משתמשים פעילים (${CommonConsts.daysForActiveUsers} ימים)', value: stats.activeUsers.toString(), color: Colors.orange),
-      StatCard(title: 'משתמשים חדשים (${CommonConsts.daysForNewUsers} ימים אחרונים)', value: stats.newUsersNDays.toString(), color: Colors.purple),
-      StatCard(title: 'סך השאלונים שהוגשו על ידי אורחים', value: stats.totalGuestQuizzes.toString(), color: Colors.deepPurple),
-      StatCard(title: 'סך כניסות כאורח', value: stats.totalGuestLogins.toString(), color: Colors.deepPurple),
+      StatCard(title: DashboardLabels.totalUsers, value: stats.totalUsers.toString(), color: Colors.blue),
+      StatCard(title: DashboardLabels.quizzesToday, value: stats.quizzesToday.toString(), color: Colors.brown),
+      StatCard(title: DashboardLabels.quizzesThisMonth, value: stats.quizzesSubmittedRecently.toString(), color: Colors.green),
+      StatCard(title: DashboardLabels.activeUsers, value: stats.activeUsers.toString(), color: Colors.orange),
+      StatCard(title: DashboardLabels.newUsers, value: stats.newUsersNDays.toString(), color: Colors.purple),
+      StatCard(title: DashboardLabels.totalGuestQuizzes, value: stats.totalGuestQuizzes.toString(), color: Colors.deepPurple),
+      StatCard(title: DashboardLabels.totalGuestLogins, value: stats.totalGuestLogins.toString(), color: Colors.deepPurple),
     ];
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final columns = constraints.maxWidth < 480
-            ? 2
+            ? 5
             : constraints.maxWidth < 720
-                ? 3
+                ? 6
                 : constraints.maxWidth < 1000
-                    ? 4
-                    : 5;
+                    ? 7
+                    : 7;
 
         return GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: columns,
-          childAspectRatio: 1.6,
+          childAspectRatio: 1.5,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           children: cards,
