@@ -56,7 +56,7 @@ class _UserGrowthChartState extends State<UserGrowthChart> {
       if (date.isBefore(earliest)) earliest = date;
 
       final key = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-      debugLog(name: tag, 'Key: $key');
+      //debugLog(name: tag, 'Key: $key');
       registrations[key] = (registrations[key] ?? 0) + 1;
     }
 
