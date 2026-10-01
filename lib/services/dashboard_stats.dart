@@ -11,6 +11,7 @@ class DashboardStats {
   final int quizzesToday;
   final int totalGuestQuizzes;
   final int totalGuestLogins;
+  final int guestQuizzesThisMonth;
 
   DashboardStats({
     required this.totalUsers,
@@ -20,6 +21,7 @@ class DashboardStats {
     required this.quizzesToday,
     required this.totalGuestQuizzes,
     required this.totalGuestLogins,
+    required this.guestQuizzesThisMonth,
   });
 
   static String tag = "DashboardStats";
@@ -77,6 +79,15 @@ class DashboardStats {
     final guestLoginsFuture =
         db.collection('analytics').doc('guest_stats').get();
 
+    final currentMonthId =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    final guestQuizzesThisMonthFuture = db
+        .collection('analytics')
+        .doc('guest_stats')
+        .collection('monthly')
+        .doc(currentMonthId)
+        .get();
+
     final startOfToday = DateTime(now.year, now.month, now.day);
     final startOfTomorrow = startOfToday.add(const Duration(days: 1));
     debugLog(
@@ -104,8 +115,9 @@ class DashboardStats {
       _safeRun("newUsers", newUsersFuture),
       _safeRun("tests", quizzesFuture),
       _safeRun("quizzesToday", quizzesTodayFuture),
-      _safeRun("totalGuestQuizzes", guestQuizzesSubmittedFuture),
       _safeRun("totalGuestLogins", guestLoginsFuture),
+      _safeRun("totalGuestQuizzes", guestQuizzesSubmittedFuture),
+      _safeRun("guestQuizzesThisMonth", guestQuizzesThisMonthFuture),
     ]);
 
     debugLog('Using collectionGroup: done');
@@ -116,12 +128,14 @@ class DashboardStats {
       newUsersNDays: results[2].count!,
       quizzesSubmittedRecently: results[3].count!,
       quizzesToday: results[4].count!,
+      totalGuestLogins:
+          (results[5].data() as Map<String, dynamic>?)?['totalGuestLogins'] ??
+              0,
       totalGuestQuizzes:
-          (results[5].data() as Map<String, dynamic>?)?['totalGuestQuizzes'] ??
+          (results[6].data() as Map<String, dynamic>?)?['totalGuestQuizzes'] ??
               0,
-              totalGuestLogins:
-          (results[6].data() as Map<String, dynamic>?)?['totalGuestLogins'] ??
-              0,
+      guestQuizzesThisMonth:
+          (results[7].data() as Map<String, dynamic>?)?['guestQuizzes'] ?? 0,
     );
   }
 
