@@ -1,15 +1,17 @@
 Build & Deploy
 ==============
+1. Run build.sh with appropriate argument
+2. Run a deploy script
 
-Step 1 — Build
---------------
+Step 1 — Build ( must indicate the DB to use,  production or default )
+---------------------------------------------------------------------
 # For production database:
 ./build.sh prod
 
 # For dev/default database:
 ./build.sh dev
 
-Step 2 — Preview (test before going live)
+Step 2 — Preview (test before going live) - deploy to preview channel
 -----------------------------------------
 ./admin_test_deploy.sh
 
