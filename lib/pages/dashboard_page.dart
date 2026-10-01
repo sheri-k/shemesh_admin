@@ -7,8 +7,8 @@ import 'package:shemesh_admin/widgets/stat_card.dart';
 import 'package:shemesh_admin/widgets/user_growth_chart.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
-const double _maxCardWidth = 240;   // hard cap on each card's width
-const double _maxGridWidth = 1500;  // group stays centered beyond this
+const double _maxCardWidth = 240; // hard cap on each card's width
+const double _maxGridWidth = 1500; // group stays centered beyond this
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -137,12 +137,16 @@ class _DashboardPageState extends State<DashboardPage> {
           value: stats.newUsersNDays.toString(),
           color: Colors.purple),
       StatCard(
+          title: DashboardLabels.totalGuestLogins,
+          value: stats.totalGuestLogins.toString(),
+          color: Colors.deepPurple),
+      StatCard(
           title: DashboardLabels.totalGuestQuizzes,
           value: stats.totalGuestQuizzes.toString(),
           color: Colors.deepPurple),
       StatCard(
-          title: DashboardLabels.totalGuestLogins,
-          value: stats.totalGuestLogins.toString(),
+          title: DashboardLabels.guestQuizzesThisMonth,
+          value: stats.guestQuizzesThisMonth.toString(),
           color: Colors.deepPurple),
     ];
 
