@@ -115,7 +115,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildStatCards(DashboardStats stats) {
-    final cards = [
+    final registeredCards = [
       StatCard(
           title: DashboardLabels.totalUsers,
           value: stats.totalUsers.toString(),
@@ -136,6 +136,9 @@ class _DashboardPageState extends State<DashboardPage> {
           title: DashboardLabels.newUsers,
           value: stats.newUsersNDays.toString(),
           color: Colors.purple),
+    ];
+
+    final guestCards = [
       StatCard(
           title: DashboardLabels.totalGuestLogins,
           value: stats.totalGuestLogins.toString(),
@@ -153,7 +156,36 @@ class _DashboardPageState extends State<DashboardPage> {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: _maxGridWidth),
-        child: GridView.extent(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildCardGroup(
+                DashboardLabels.registeredUsersSection, registeredCards),
+            const SizedBox(height: 24),
+            _buildCardGroup(DashboardLabels.guestsSection, guestCards),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardGroup(String title, List<Widget> cards) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CommonConsts.primaryTextColor,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        GridView.extent(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           maxCrossAxisExtent: _maxCardWidth,
@@ -162,7 +194,7 @@ class _DashboardPageState extends State<DashboardPage> {
           mainAxisSpacing: 12,
           children: cards,
         ),
-      ),
+      ],
     );
   }
 }
