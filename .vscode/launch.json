@@ -1,25 +1,41 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "shemesh_admin",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "shemesh_admin (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "shemesh_admin (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "shemesh_admin",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "shemesh_admin (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "shemesh_admin (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    },
+    {
+      "name": "Flutter Web (Chrome) on Port 8050",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "args": ["--web-port=8050", "--dart-define=DATABASE_ID=(default)"],
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Flutter Web (Chrome) on Port 8050 - production",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "args": ["--web-port=8050", "--dart-define=DATABASE_ID=production"],
+      "flutterMode": "debug"
+    }
+  ]
 }

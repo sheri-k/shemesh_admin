@@ -115,7 +115,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildStatCards(DashboardStats stats) {
-    final cards = [
+    // Card order is kept parallel between the two sections so that comparable
+    // registered/guest metrics line up in the same grid column (e.g. "today"
+    // above "guests today", "this month" above "guests this month").
+    final registeredCards = [
       StatCard(
           title: DashboardLabels.totalUsers,
           value: stats.totalUsers.toString(),
@@ -124,6 +127,10 @@ class _DashboardPageState extends State<DashboardPage> {
           title: DashboardLabels.quizzesToday,
           value: stats.quizzesToday.toString(),
           color: Colors.brown),
+      StatCard(
+          title: DashboardLabels.quizzesThisCalendarMonth,
+          value: stats.quizzesThisCalendarMonth.toString(),
+          color: Colors.teal),
       StatCard(
           title: DashboardLabels.quizzesThisMonth,
           value: stats.quizzesSubmittedRecently.toString(),
@@ -136,24 +143,61 @@ class _DashboardPageState extends State<DashboardPage> {
           title: DashboardLabels.newUsers,
           value: stats.newUsersNDays.toString(),
           color: Colors.purple),
+    ];
+
+    final guestCards = [
       StatCard(
           title: DashboardLabels.totalGuestLogins,
           value: stats.totalGuestLogins.toString(),
           color: Colors.deepPurple),
       StatCard(
-          title: DashboardLabels.totalGuestQuizzes,
-          value: stats.totalGuestQuizzes.toString(),
+          title: DashboardLabels.guestQuizzesToday,
+          value: stats.guestQuizzesToday.toString(),
           color: Colors.deepPurple),
       StatCard(
           title: DashboardLabels.guestQuizzesThisMonth,
           value: stats.guestQuizzesThisMonth.toString(),
           color: Colors.deepPurple),
+      // Hidden for now — "total quizzes submitted by guests".
+      // StatCard(
+      //     title: DashboardLabels.totalGuestQuizzes,
+      //     value: stats.totalGuestQuizzes.toString(),
+      //     color: Colors.deepPurple),
     ];
 
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: _maxGridWidth),
-        child: GridView.extent(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildCardGroup(
+                DashboardLabels.registeredUsersSection, registeredCards),
+            const SizedBox(height: 24),
+            _buildCardGroup(DashboardLabels.guestsSection, guestCards),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardGroup(String title, List<Widget> cards) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: CommonConsts.primaryTextColor,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        GridView.extent(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           maxCrossAxisExtent: _maxCardWidth,
@@ -162,7 +206,7 @@ class _DashboardPageState extends State<DashboardPage> {
           mainAxisSpacing: 12,
           children: cards,
         ),
-      ),
+      ],
     );
   }
 }
