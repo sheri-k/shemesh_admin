@@ -9,9 +9,11 @@ class DashboardStats {
   final int newUsersNDays;
   final int quizzesSubmittedRecently;
   final int quizzesToday;
+  final int quizzesThisCalendarMonth;
   final int totalGuestQuizzes;
   final int totalGuestLogins;
   final int guestQuizzesThisMonth;
+  final int guestQuizzesToday;
 
   DashboardStats({
     required this.totalUsers,
@@ -19,9 +21,11 @@ class DashboardStats {
     required this.newUsersNDays,
     required this.quizzesSubmittedRecently,
     required this.quizzesToday,
+    required this.quizzesThisCalendarMonth,
     required this.totalGuestQuizzes,
     required this.totalGuestLogins,
     required this.guestQuizzesThisMonth,
+    required this.guestQuizzesToday,
   });
 
   static String tag = "DashboardStats";
@@ -88,6 +92,28 @@ class DashboardStats {
         .doc(currentMonthId)
         .get();
 
+    final currentDayId =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final guestQuizzesTodayFuture = db
+        .collection('analytics')
+        .doc('guest_stats')
+        .collection('daily')
+        .doc(currentDayId)
+        .get();
+
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    debugLog(
+        name: tag,
+        'Getting quizzes submitted this calendar month with quiz_date >= ${startOfMonth.toIso8601String()}');
+    final quizzesThisCalendarMonthFuture = db
+        .collectionGroup('test_data')
+        .where(
+          'quiz_date',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth),
+        )
+        .count()
+        .get();
+
     final startOfToday = DateTime(now.year, now.month, now.day);
     final startOfTomorrow = startOfToday.add(const Duration(days: 1));
     debugLog(
@@ -118,6 +144,8 @@ class DashboardStats {
       _safeRun("totalGuestLogins", guestLoginsFuture),
       _safeRun("totalGuestQuizzes", guestQuizzesSubmittedFuture),
       _safeRun("guestQuizzesThisMonth", guestQuizzesThisMonthFuture),
+      _safeRun("quizzesThisCalendarMonth", quizzesThisCalendarMonthFuture),
+      _safeRun("guestQuizzesToday", guestQuizzesTodayFuture),
     ]);
 
     debugLog('Using collectionGroup: done');
@@ -136,6 +164,9 @@ class DashboardStats {
               0,
       guestQuizzesThisMonth:
           (results[7].data() as Map<String, dynamic>?)?['guestQuizzes'] ?? 0,
+      quizzesThisCalendarMonth: results[8].count!,
+      guestQuizzesToday:
+          (results[9].data() as Map<String, dynamic>?)?['guestQuizzes'] ?? 0,
     );
   }
 

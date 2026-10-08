@@ -115,6 +115,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildStatCards(DashboardStats stats) {
+    // Card order is kept parallel between the two sections so that comparable
+    // registered/guest metrics line up in the same grid column (e.g. "today"
+    // above "guests today", "this month" above "guests this month").
     final registeredCards = [
       StatCard(
           title: DashboardLabels.totalUsers,
@@ -124,6 +127,10 @@ class _DashboardPageState extends State<DashboardPage> {
           title: DashboardLabels.quizzesToday,
           value: stats.quizzesToday.toString(),
           color: Colors.brown),
+      StatCard(
+          title: DashboardLabels.quizzesThisCalendarMonth,
+          value: stats.quizzesThisCalendarMonth.toString(),
+          color: Colors.teal),
       StatCard(
           title: DashboardLabels.quizzesThisMonth,
           value: stats.quizzesSubmittedRecently.toString(),
@@ -144,13 +151,18 @@ class _DashboardPageState extends State<DashboardPage> {
           value: stats.totalGuestLogins.toString(),
           color: Colors.deepPurple),
       StatCard(
-          title: DashboardLabels.totalGuestQuizzes,
-          value: stats.totalGuestQuizzes.toString(),
+          title: DashboardLabels.guestQuizzesToday,
+          value: stats.guestQuizzesToday.toString(),
           color: Colors.deepPurple),
       StatCard(
           title: DashboardLabels.guestQuizzesThisMonth,
           value: stats.guestQuizzesThisMonth.toString(),
           color: Colors.deepPurple),
+      // Hidden for now — "total quizzes submitted by guests".
+      // StatCard(
+      //     title: DashboardLabels.totalGuestQuizzes,
+      //     value: stats.totalGuestQuizzes.toString(),
+      //     color: Colors.deepPurple),
     ];
 
     return Center(
