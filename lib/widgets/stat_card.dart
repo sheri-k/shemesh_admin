@@ -7,18 +7,22 @@ class StatCard extends StatelessWidget {
   final String title;
   final String value;
   final Color color;
+  final Color backgroundColor;
 
   const StatCard({
     super.key,
     required this.title,
     required this.value,
     required this.color,
+    this.backgroundColor = CommonConsts.primaryScaffoldBckgrndColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
+      color: backgroundColor,
+      surfaceTintColor: Colors.transparent,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final titleFontSize = (constraints.maxWidth * 0.09).clamp(11.0, 17.0);

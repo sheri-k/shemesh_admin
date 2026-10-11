@@ -7,4 +7,25 @@ class StringUtils {
 
     return '$month/$year';
   }
+
+  // Converts a 'YYYY-MM-DD' key to 'DD/MM'.
+  static String getDayMonthStr(String key) {
+    final parts = key.split('-');
+    return '${parts[2]}/${parts[1]}';
+  }
+
+  // Single Hebrew weekday letter for the given date.
+  // DateTime.weekday: Mon=1 ... Sun=7.
+  static String getHebrewDayLetter(DateTime d) {
+    const letters = {
+      DateTime.sunday: 'א',
+      DateTime.monday: 'ב',
+      DateTime.tuesday: 'ג',
+      DateTime.wednesday: 'ד',
+      DateTime.thursday: 'ה',
+      DateTime.friday: 'ו',
+      DateTime.saturday: 'ש',
+    };
+    return letters[d.weekday] ?? '';
+  }
 }

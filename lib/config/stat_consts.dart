@@ -3,4 +3,5 @@ class StatConsts {
   static const int daysForActiveUsers = 7;
   static const int daysForNewUsers = 30;
   static const int daysForTestsSubmitted = 30;
+  static const int daysForDailyChart = 30;
 }
