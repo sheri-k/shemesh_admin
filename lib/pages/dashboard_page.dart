@@ -21,6 +21,10 @@ class _DashboardPageState extends State<DashboardPage> {
   static String tag = 'DashboardPage';
   late Future<DashboardStats> _futureStats;
 
+  // Bumped on each refresh. Used as the charts' ValueKey so that changing it
+  // recreates their State, re-running their initState() -> loadData().
+  int _refreshToken = 0;
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +34,7 @@ class _DashboardPageState extends State<DashboardPage> {
   void _refreshStats() {
     setState(() {
       _futureStats = DashboardStats.loadStats();
+      _refreshToken++;
     });
   }
 
@@ -68,9 +73,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 24),
-              const QuizTotalBarChart(),
+              QuizTotalBarChart(key: ValueKey('quiz-chart-$_refreshToken')),
               const SizedBox(height: 30),
-              const UserGrowthChart(),
+              UserGrowthChart(key: ValueKey('growth-chart-$_refreshToken')),
               const SizedBox(height: 30),
             ],
           ),
