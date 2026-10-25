@@ -17,7 +17,11 @@ const double _yAxisPanelWidth = 64.0;
 const bool _logDailySubmitters = false;
 
 class QuizTotalBarChart extends StatefulWidget {
-  const QuizTotalBarChart({super.key});
+  const QuizTotalBarChart({super.key, required this.excludedUids});
+
+  /// Resolved once per dashboard load and shared with the stat cards, so the
+  /// excluded-user lookup runs only once.
+  final Future<Set<String>> excludedUids;
 
   @override
   State<QuizTotalBarChart> createState() => _QuizTotalBarChartState();
@@ -44,6 +48,7 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
 
   Future<void> loadData() async {
     final db = FirebaseService().firestore;
+    final excludedUids = await widget.excludedUids;
     final snap = await db.collectionGroup('test_data').get();
 
     final Map<String, int> monthlyCounts = {};
@@ -64,6 +69,10 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
     }
 
     for (final doc in snap.docs) {
+      // test_data is a subcollection of the user doc: users/{uid}/test_data.
+      final uid = doc.reference.parent.parent?.id;
+      if (uid != null && excludedUids.contains(uid)) continue;
+
       final ts = doc['quiz_date'] as Timestamp;
       final date = ts.toDate();
 
@@ -74,9 +83,7 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
       if (dailyCounts.containsKey(dayKey)) {
         dailyCounts[dayKey] = dailyCounts[dayKey]! + 1;
         if (_logDailySubmitters) {
-          // test_data is a subcollection of the user doc: users/{uid}/test_data.
-          final uid = doc.reference.parent.parent?.id ?? '(unknown)';
-          dailyUserIds[dayKey]!.add(uid);
+          dailyUserIds[dayKey]!.add(uid ?? '(unknown)');
         }
       }
     }
