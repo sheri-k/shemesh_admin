@@ -22,19 +22,19 @@
       "flutterMode": "release"
     },
     {
-      "name": "Flutter Web (Chrome) on Port 8050",
+      "name": "Flutter Web (Chrome) on Port 8085",
       "request": "launch",
       "type": "dart",
       "deviceId": "chrome",
-      "args": ["--web-port=8050", "--dart-define=DATABASE_ID=(default)"],
+      "args": ["--web-port=8085", "--dart-define=DATABASE_ID=(default)"],
       "flutterMode": "debug"
     },
     {
-      "name": "Flutter Web (Chrome) on Port 8050 - production",
+      "name": "Flutter Web (Chrome) on Port 8085 - production",
       "request": "launch",
       "type": "dart",
       "deviceId": "chrome",
-      "args": ["--web-port=8050", "--dart-define=DATABASE_ID=production"],
+      "args": ["--web-port=8085", "--dart-define=DATABASE_ID=production"],
       "flutterMode": "debug"
     }
   ]

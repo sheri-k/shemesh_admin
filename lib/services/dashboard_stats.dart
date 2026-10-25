@@ -30,7 +30,11 @@ class DashboardStats {
 
   static String tag = "DashboardStats";
 
-  static Future<DashboardStats> loadStats() async {
+  /// [excludedUids] is resolved once per dashboard load (see DashboardPage) and
+  /// shared with the quiz chart, so the excluded-user lookup runs only once.
+  static Future<DashboardStats> loadStats({
+    required Future<Set<String>> excludedUids,
+  }) async {
     final db = FirebaseService().firestore;
 
     final now = DateTime.now();
@@ -47,13 +51,13 @@ class DashboardStats {
     debugLog(
         'Getting active users with last_login >= ${nDaysAgoForActiveUsers.toIso8601String()}');
 
+    // Fetch the docs (not just a count) so excluded users can be dropped.
     final activeUsersFuture = db
         .collection('users')
         .where(
           'last_login',
           isGreaterThanOrEqualTo: nDaysAgoForActiveUsers.toIso8601String(),
         )
-        .count()
         .get();
 
     debugLog(
@@ -67,14 +71,26 @@ class DashboardStats {
         .count()
         .get();
 
-    debugLog('Getting collectionGroup for test_data');
-    final quizzesFuture = db
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    final startOfTomorrow = startOfToday.add(const Duration(days: 1));
+
+    // The recent / today / this-calendar-month quiz stats all read test_data
+    // over overlapping date ranges. Fetch the widest window once and derive
+    // each count in memory, instead of reading the overlapping docs three
+    // times.
+    final earliestQuizWindow = startOfMonth.isBefore(nDaysAgoForRecentTests)
+        ? startOfMonth
+        : nDaysAgoForRecentTests;
+    debugLog(
+        name: tag,
+        'Getting test_data with quiz_date >= ${earliestQuizWindow.toIso8601String()}');
+    final testDataDocsFuture = db
         .collectionGroup('test_data')
         .where(
           'quiz_date',
-          isGreaterThanOrEqualTo: Timestamp.fromDate(nDaysAgoForRecentTests),
+          isGreaterThanOrEqualTo: Timestamp.fromDate(earliestQuizWindow),
         )
-        .count()
         .get();
 
     final guestQuizzesSubmittedFuture =
@@ -101,73 +117,86 @@ class DashboardStats {
         .doc(currentDayId)
         .get();
 
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    debugLog(
-        name: tag,
-        'Getting quizzes submitted this calendar month with quiz_date >= ${startOfMonth.toIso8601String()}');
-    final quizzesThisCalendarMonthFuture = db
-        .collectionGroup('test_data')
-        .where(
-          'quiz_date',
-          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth),
-        )
-        .count()
-        .get();
-
-    final startOfToday = DateTime(now.year, now.month, now.day);
-    final startOfTomorrow = startOfToday.add(const Duration(days: 1));
-    debugLog(
-        name: tag,
-        'Getting quizzes submitted today with quiz_date >= ${startOfToday.toIso8601String()} and < ${startOfTomorrow.toIso8601String()}');
-
-    final quizzesTodayFuture = db
-        .collectionGroup('test_data')
-        .where(
-          'quiz_date',
-          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfToday),
-        )
-        .where(
-          'quiz_date',
-          isLessThan: Timestamp.fromDate(startOfTomorrow),
-        )
-        .count()
-        .get();
-
     debugLog('After getting collectionGroup');
 
     final results = await Future.wait([
       _safeRun("totalUsers", totalUsersFuture),
       _safeRun("activeUsers", activeUsersFuture),
       _safeRun("newUsers", newUsersFuture),
-      _safeRun("tests", quizzesFuture),
-      _safeRun("quizzesToday", quizzesTodayFuture),
+      _safeRun("testData", testDataDocsFuture),
       _safeRun("totalGuestLogins", guestLoginsFuture),
       _safeRun("totalGuestQuizzes", guestQuizzesSubmittedFuture),
       _safeRun("guestQuizzesThisMonth", guestQuizzesThisMonthFuture),
-      _safeRun("quizzesThisCalendarMonth", quizzesThisCalendarMonthFuture),
       _safeRun("guestQuizzesToday", guestQuizzesTodayFuture),
+      // Resolved once per dashboard load; reused by every excluded stat below.
+      _safeRun("excludedUids", excludedUids),
     ]);
 
     debugLog('Using collectionGroup: done');
 
+    final activeUsersSnap = results[1] as QuerySnapshot;
+    final testDataSnap = results[3] as QuerySnapshot;
+    final excludedUidsSet = results[8] as Set<String>;
+
     return DashboardStats(
       totalUsers: results[0].count!,
-      activeUsers: results[1].count!,
+      activeUsers: _countUsersExcluding(activeUsersSnap, excludedUidsSet),
       newUsersNDays: results[2].count!,
-      quizzesSubmittedRecently: results[3].count!,
-      quizzesToday: results[4].count!,
+      quizzesSubmittedRecently: _countTestData(
+        testDataSnap,
+        excludedUidsSet,
+        (d) => !d.isBefore(nDaysAgoForRecentTests),
+      ),
+      quizzesToday: _countTestData(
+        testDataSnap,
+        excludedUidsSet,
+        (d) => !d.isBefore(startOfToday) && d.isBefore(startOfTomorrow),
+      ),
       totalGuestLogins:
-          (results[5].data() as Map<String, dynamic>?)?['totalGuestLogins'] ??
+          (results[4].data() as Map<String, dynamic>?)?['totalGuestLogins'] ??
               0,
       totalGuestQuizzes:
-          (results[6].data() as Map<String, dynamic>?)?['totalGuestQuizzes'] ??
+          (results[5].data() as Map<String, dynamic>?)?['totalGuestQuizzes'] ??
               0,
       guestQuizzesThisMonth:
-          (results[7].data() as Map<String, dynamic>?)?['guestQuizzes'] ?? 0,
-      quizzesThisCalendarMonth: results[8].count!,
+          (results[6].data() as Map<String, dynamic>?)?['guestQuizzes'] ?? 0,
+      quizzesThisCalendarMonth: _countTestData(
+        testDataSnap,
+        excludedUidsSet,
+        (d) => !d.isBefore(startOfMonth),
+      ),
       guestQuizzesToday:
-          (results[9].data() as Map<String, dynamic>?)?['guestQuizzes'] ?? 0,
+          (results[7].data() as Map<String, dynamic>?)?['guestQuizzes'] ?? 0,
     );
+  }
+
+  /// Counts test_data docs whose quiz_date satisfies [matches], skipping any
+  /// whose owning user (stored at `users/{uid}/test_data`) is in [excludedUids].
+  static int _countTestData(
+    QuerySnapshot snap,
+    Set<String> excludedUids,
+    bool Function(DateTime quizDate) matches,
+  ) {
+    var count = 0;
+    for (final doc in snap.docs) {
+      final ts = doc['quiz_date'] as Timestamp;
+      if (!matches(ts.toDate())) continue;
+      final uid = doc.reference.parent.parent?.id;
+      if (uid != null && excludedUids.contains(uid)) continue;
+      count++;
+    }
+    return count;
+  }
+
+  /// Counts user docs, skipping any whose id (the uid) is in [excludedUids].
+  static int _countUsersExcluding(
+      QuerySnapshot snap, Set<String> excludedUids) {
+    if (excludedUids.isEmpty) return snap.docs.length;
+    var count = 0;
+    for (final doc in snap.docs) {
+      if (!excludedUids.contains(doc.id)) count++;
+    }
+    return count;
   }
 
   static Future _safeRun(String name, Future future) async {

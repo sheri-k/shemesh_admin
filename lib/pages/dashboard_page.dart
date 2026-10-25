@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shemesh_admin/config/common_consts.dart';
 import 'package:shemesh_admin/config/dashboard_labels.dart';
 import 'package:shemesh_admin/services/dashboard_stats.dart';
+import 'package:shemesh_admin/services/excluded_users.dart';
+import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/widgets/quiz_total_bar_chart.dart';
 import 'package:shemesh_admin/widgets/stat_card.dart';
 import 'package:shemesh_admin/widgets/user_growth_chart.dart';
@@ -21,6 +23,10 @@ class _DashboardPageState extends State<DashboardPage> {
   static String tag = 'DashboardPage';
   late Future<DashboardStats> _futureStats;
 
+  // Resolved once per load and shared by the stat cards and the quiz chart so
+  // the excluded-user lookup runs only once per dashboard load / refresh.
+  late Future<Set<String>> _futureExcludedUids;
+
   // Bumped on each refresh. Used as the charts' ValueKey so that changing it
   // recreates their State, re-running their initState() -> loadData().
   int _refreshToken = 0;
@@ -28,12 +34,17 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    _futureStats = DashboardStats.loadStats();
+    _load();
+  }
+
+  void _load() {
+    _futureExcludedUids = ExcludedUsers.loadUids(FirebaseService().firestore);
+    _futureStats = DashboardStats.loadStats(excludedUids: _futureExcludedUids);
   }
 
   void _refreshStats() {
     setState(() {
-      _futureStats = DashboardStats.loadStats();
+      _load();
       _refreshToken++;
     });
   }
@@ -73,7 +84,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 24),
-              QuizTotalBarChart(key: ValueKey('quiz-chart-$_refreshToken')),
+              QuizTotalBarChart(
+                key: ValueKey('quiz-chart-$_refreshToken'),
+                excludedUids: _futureExcludedUids,
+              ),
               const SizedBox(height: 30),
               UserGrowthChart(key: ValueKey('growth-chart-$_refreshToken')),
               const SizedBox(height: 30),
