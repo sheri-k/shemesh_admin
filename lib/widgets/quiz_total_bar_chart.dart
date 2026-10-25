@@ -76,7 +76,7 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
       final ts = doc['quiz_date'] as Timestamp;
       final date = ts.toDate();
 
-      final monthKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+      final monthKey = _monthKey(date);
       monthlyCounts[monthKey] = (monthlyCounts[monthKey] ?? 0) + 1;
 
       final dayKey = _dayKey(date);
@@ -85,6 +85,23 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
         if (_logDailySubmitters) {
           dailyUserIds[dayKey]!.add(uid ?? '(unknown)');
         }
+      }
+    }
+
+    // Fill in any gap months with 0 so a month without quizzes still shows a
+    // (zero-height) bar instead of being skipped. Spans from the earliest
+    // quiz month through the current month.
+    if (monthlyCounts.isNotEmpty) {
+      final keys = monthlyCounts.keys.toList()..sort();
+      final first = _parseMonthKey(keys.first);
+      final lastPresent = _parseMonthKey(keys.last);
+      final currentMonth = DateTime(today.year, today.month);
+      final last =
+          lastPresent.isAfter(currentMonth) ? lastPresent : currentMonth;
+      for (var m = first;
+          !m.isAfter(last);
+          m = DateTime(m.year, m.month + 1)) {
+        monthlyCounts.putIfAbsent(_monthKey(m), () => 0);
       }
     }
 
@@ -109,6 +126,14 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
 
   static String _dayKey(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  static String _monthKey(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}';
+
+  static DateTime _parseMonthKey(String key) {
+    final parts = key.split('-');
+    return DateTime(int.parse(parts[0]), int.parse(parts[1]));
+  }
 
   static Map<String, int> _sortedByKey(Map<String, int> counts) =>
       Map.fromEntries(
