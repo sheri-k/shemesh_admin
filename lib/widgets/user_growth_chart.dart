@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:shemesh_admin/config/color_constants.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 import 'package:shemesh_admin/widgets/chart_card.dart';
@@ -161,7 +162,7 @@ class _UserGrowthChartState extends State<UserGrowthChart> {
                       FlSpot(0, 0),
                       FlSpot((entries.length - 1).toDouble(), 0),
                     ],
-                    color: Colors.transparent,
+                    color: ColorConstants.transparent,
                     dotData: FlDotData(show: false),
                   ),
                 ],
@@ -239,6 +240,7 @@ class _UserGrowthChartState extends State<UserGrowthChart> {
       ),
       lineBarsData: [
         LineChartBarData(
+          color: ColorConstants.registeredUsersColor,
           isCurved: false,
           barWidth: 4,
           dotData: FlDotData(show: true),

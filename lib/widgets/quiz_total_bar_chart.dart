@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:shemesh_admin/config/common_consts.dart';
+import 'package:shemesh_admin/config/color_constants.dart';
 import 'package:shemesh_admin/config/stat_consts.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
@@ -182,8 +182,8 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: CommonConsts.primaryScaffoldBckgrndColor,
-            border: Border.all(color: Colors.grey.shade400, width: 1),
+            color: ColorConstants.primaryScaffoldBckgrndColor,
+            border: Border.all(color: ColorConstants.chartBorderColor, width: 1),
             borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -194,7 +194,7 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: ColorConstants.chartDropdownTextColor,
               ),
               items: const [
                 DropdownMenuItem(value: false, child: Text('חודש')),
@@ -258,7 +258,7 @@ class _QuizTotalBarChartState extends State<QuizTotalBarChart> {
                 entries.length,
                 (i) => BarChartGroupData(
                   x: i,
-                  barRods: [BarChartRodData(toY: 0, width: 0, color: Colors.transparent)],
+                  barRods: [BarChartRodData(toY: 0, width: 0, color: ColorConstants.transparent)],
                 ),
               ),
             ),

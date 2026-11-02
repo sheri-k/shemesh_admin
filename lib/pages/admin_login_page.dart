@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shemesh_admin/config/common_consts.dart';
+import 'package:shemesh_admin/config/color_constants.dart';
 import 'package:shemesh_admin/pages/dashboard_page.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
 
@@ -61,7 +61,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: CommonConsts.secondaryScaffoldBckgrndColor,
+        backgroundColor: ColorConstants.secondaryScaffoldBckgrndColor,
         body: Center(
           child: Container(
             width: 380,
@@ -127,7 +127,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     if (_error.isNotEmpty)
                       Text(
                         _error,
-                        style: const TextStyle(color: Colors.red),
+                        style: const TextStyle(color: ColorConstants.errorTextColor),
                       ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -137,19 +137,19 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                         onPressed: _loading ? null : _login,
                         style: ButtonStyle(
                           backgroundColor: WidgetStatePropertyAll(
-                              CommonConsts.actionButtonColor),
+                              ColorConstants.actionButtonColor),
                           // overlayColor:
-                          //     WidgetStatePropertyAll(CommonConsts.appBarColor),
+                          //     WidgetStatePropertyAll(ColorConstants.appBarColor),
                         ),
                         child: _loading
                             ? const CircularProgressIndicator(
-                                color: CommonConsts.progressIndicatorColor,
+                                color: ColorConstants.progressIndicatorColor,
                               )
                             : const Text('התחבר',
                                 style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: CommonConsts.primaryTextColor)),
+                                    color: ColorConstants.primaryTextColor)),
                       ),
                     ),
                   ],
