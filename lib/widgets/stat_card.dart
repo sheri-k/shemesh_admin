@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shemesh_admin/config/common_consts.dart';
+import 'package:shemesh_admin/config/color_constants.dart';
 
 const double _cardPadding = 12;
 
@@ -14,7 +14,7 @@ class StatCard extends StatelessWidget {
     required this.title,
     required this.value,
     required this.color,
-    this.backgroundColor = CommonConsts.primaryScaffoldBckgrndColor,
+    this.backgroundColor = ColorConstants.primaryScaffoldBckgrndColor,
   });
 
   @override
@@ -22,7 +22,7 @@ class StatCard extends StatelessWidget {
     return Card(
       elevation: 4,
       color: backgroundColor,
-      surfaceTintColor: Colors.transparent,
+      surfaceTintColor: ColorConstants.transparent,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final titleFontSize = (constraints.maxWidth * 0.09).clamp(11.0, 17.0);
@@ -35,7 +35,7 @@ class StatCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: titleFontSize, color: CommonConsts.primaryTextColor),
+                  style: TextStyle(fontSize: titleFontSize, color: ColorConstants.primaryTextColor),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),

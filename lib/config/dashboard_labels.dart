@@ -15,5 +15,6 @@ class DashboardLabels {
   static const String guestQuizzesToday = 'שאלונים שהוגשו היום';
   static const String registeredUsersSection = 'משתמשים רשומים';
   static const String guestsSection = 'אורחים';
+  static const String registeredUsersTooltip = 'משתמשים';
 }
 

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shemesh_admin/config/color_constants.dart';
 import 'package:shemesh_admin/config/common_consts.dart';
 import 'package:shemesh_admin/config/dashboard_labels.dart';
 import 'package:shemesh_admin/services/dashboard_stats.dart';
 import 'package:shemesh_admin/services/excluded_users.dart';
 import 'package:shemesh_admin/services/firebase_service.dart';
-import 'package:shemesh_admin/widgets/quiz_total_bar_chart.dart';
+import 'package:shemesh_admin/widgets/quiz_total_stacked_bar_chart.dart';
 import 'package:shemesh_admin/widgets/stat_card.dart';
 import 'package:shemesh_admin/widgets/user_growth_chart.dart';
 import 'package:shemesh_admin/utilities/debug_log.dart';
@@ -63,7 +64,7 @@ class _DashboardPageState extends State<DashboardPage> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
-          backgroundColor: CommonConsts.appBarColor,
+          backgroundColor: ColorConstants.appBarColor,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -84,7 +85,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 24),
-              QuizTotalBarChart(
+              QuizTotalStackedBarChart(
                 key: ValueKey('quiz-chart-$_refreshToken'),
                 excludedUids: _futureExcludedUids,
               ),
@@ -114,8 +115,8 @@ class _DashboardPageState extends State<DashboardPage> {
       child: ElevatedButton(
         onPressed: _refreshStats,
         style: ElevatedButton.styleFrom(
-          backgroundColor: CommonConsts.actionButtonColor,
-          foregroundColor: CommonConsts.primaryTextColor,
+          backgroundColor: ColorConstants.actionButtonColor,
+          foregroundColor: ColorConstants.primaryTextColor,
           elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -126,7 +127,7 @@ class _DashboardPageState extends State<DashboardPage> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: CommonConsts.primaryTextColor,
+            color: ColorConstants.primaryTextColor,
           ),
         ),
       ),
@@ -141,47 +142,47 @@ class _DashboardPageState extends State<DashboardPage> {
       StatCard(
           title: DashboardLabels.totalUsers,
           value: stats.totalUsers.toString(),
-          color: Colors.blue),
+          color: ColorConstants.registeredUsersColor),
       StatCard(
           title: DashboardLabels.quizzesToday,
           value: stats.quizzesToday.toString(),
-          color: Colors.brown),
+          color: ColorConstants.registeredUsersQuizColor),
       StatCard(
           title: DashboardLabels.quizzesThisCalendarMonth,
           value: stats.quizzesThisCalendarMonth.toString(),
-          color: Colors.teal),
+          color: ColorConstants.registeredUsersQuizColor),
       StatCard(
           title: DashboardLabels.quizzesThisMonth,
           value: stats.quizzesSubmittedRecently.toString(),
-          color: Colors.green),
+          color: ColorConstants.registeredUsersQuizColor),
       StatCard(
           title: DashboardLabels.activeUsers,
           value: stats.activeUsers.toString(),
-          color: Colors.orange),
+          color: ColorConstants.registeredUsersColor),
       StatCard(
           title: DashboardLabels.newUsers,
           value: stats.newUsersNDays.toString(),
-          color: Colors.purple),
+          color: ColorConstants.registeredUsersColor),
     ];
 
     final guestCards = [
       StatCard(
           title: DashboardLabels.totalGuestLogins,
           value: stats.totalGuestLogins.toString(),
-          color: Colors.deepPurple),
+          color: ColorConstants.guestsColor),
       StatCard(
           title: DashboardLabels.guestQuizzesToday,
           value: stats.guestQuizzesToday.toString(),
-          color: Colors.deepPurple),
+          color: ColorConstants.guestsQuizColor),
       StatCard(
           title: DashboardLabels.guestQuizzesThisMonth,
           value: stats.guestQuizzesThisMonth.toString(),
-          color: Colors.deepPurple),
+          color: ColorConstants.guestsQuizColor),
       // Hidden for now — "total quizzes submitted by guests".
       // StatCard(
       //     title: DashboardLabels.totalGuestQuizzes,
       //     value: stats.totalGuestQuizzes.toString(),
-      //     color: Colors.deepPurple),
+      //     color: ColorConstants.guestsQuizColor),
     ];
 
     return Center(
@@ -211,7 +212,7 @@ class _DashboardPageState extends State<DashboardPage> {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: CommonConsts.primaryTextColor,
+              color: ColorConstants.primaryTextColor,
             ),
           ),
         ),

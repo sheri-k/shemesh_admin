@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:shemesh_admin/config/common_consts.dart';
+import 'package:shemesh_admin/config/color_constants.dart';
 import 'package:shemesh_admin/utilities/string_utils.dart';
 
 class ChartCard extends StatelessWidget {
@@ -20,7 +20,7 @@ class ChartCard extends StatelessWidget {
     required this.height,
     required this.chart,
     this.titleWidget,
-    this.backgroundColor = CommonConsts.primaryScaffoldBckgrndColor,
+    this.backgroundColor = ColorConstants.primaryScaffoldBckgrndColor,
   });
 
   @override
@@ -28,7 +28,7 @@ class ChartCard extends StatelessWidget {
     return Card(
       elevation: 4,
       color: backgroundColor,
-      surfaceTintColor: Colors.transparent,
+      surfaceTintColor: ColorConstants.transparent,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: SizedBox(
@@ -52,8 +52,8 @@ class ChartCard extends StatelessWidget {
 
   static Widget loadingPlaceholder() {
     return const Card(
-      color: CommonConsts.primaryScaffoldBckgrndColor,
-      surfaceTintColor: Colors.transparent,
+      color: ColorConstants.primaryScaffoldBckgrndColor,
+      surfaceTintColor: ColorConstants.transparent,
       child: Padding(
         padding: EdgeInsets.all(30),
         child: Center(child: CircularProgressIndicator()),
